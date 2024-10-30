@@ -72,7 +72,7 @@ bookDialog.addEventListener("close", () => {
     [...values].forEach(elem => {
         const label = document.querySelector(`label[for=${elem.id}]`);
         book[label.textContent.replace(": ", "").toLowerCase()] = (
-            [elem.type !== "checkbox" ? elem.type : elem.checked, elem.type]
+            [elem.type === "checkbox" ? elem.checked : elem.value, elem.type]
         );
     });
 
