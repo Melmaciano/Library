@@ -1,7 +1,8 @@
 output {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(max-content, 1fr));
-    width: 100%;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    justify-items: center;
+    gap: 15px;
 }
 
 .card {
