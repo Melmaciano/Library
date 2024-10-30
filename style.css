@@ -15,3 +15,9 @@ output {
     display: flex;
     flex-direction: column;
 }
+
+.value {
+    border: none;
+    background-color: none;
+    color: inherit;
+}

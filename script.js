@@ -17,6 +17,7 @@ function Book({ author, title, pages, read }) {
 
 function addBookToLibrary(book) {
     const newBook = new Book(book);
+    console.log(newBook);
     myLibrary.push(newBook);
 
     outputBox.appendChild(makeCard(book));
@@ -27,20 +28,39 @@ function addBookToLibrary(book) {
 function makeCard(book) {
     const card = document.createElement("div");
     card.classList.add("card");
+    layoutData(book, card);
+    makeDeleteBtn(book, card);
+    return card;
+}
 
+function makeDeleteBtn(book, card) {
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "X";
+    deleteBtn.addEventListener("click", () => {
+        myLibrary.splice(myLibrary.indexOf(book), 1);
+        card.remove();
+    });
+    card.appendChild(deleteBtn);
+}
+
+function layoutData(book, card) {
     for(let key in book) {
         const para = document.createElement("p");
         const label = document.createElement("span");
-        const value = document.createElement("span");
         label.textContent = key + ": ";
-        value.textContent = book[key];
+        
+        const value = document.createElement("input");
+        value.setAttribute("type", book[key][1]);
+        if (value.type !== "checkbox") value.value = book[key][0];
+        else value.checked = book[key][0];
+        value.setAttribute("disabled", "disabled");
+        value.classList.add("value");
+
 
         para.appendChild(label);
         para.appendChild(value);
         card.appendChild(para);
     }
-
-    return card;
 }
 
 // Make the dialog functional
@@ -51,7 +71,9 @@ bookDialog.addEventListener("close", () => {
 
     [...values].forEach(elem => {
         const label = document.querySelector(`label[for=${elem.id}]`);
-        book[label.textContent.replace(": ", "").toLowerCase()] = elem.value;
+        book[label.textContent.replace(": ", "").toLowerCase()] = (
+            [elem.type !== "checkbox" ? elem.type : elem.checked, elem.type]
+        );
     });
 
     // Send book information
@@ -63,5 +85,5 @@ cancelBtn.addEventListener("click", (e) => {
 });
 confirmBtn.addEventListener("click", (e) =>{
     e.preventDefault();
-    bookDialog.close();
+    bookDialog.close("send");
 });
