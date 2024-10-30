@@ -85,5 +85,9 @@ cancelBtn.addEventListener("click", (e) => {
 });
 confirmBtn.addEventListener("click", (e) =>{
     e.preventDefault();
+    if ([...values].some(elem => elem.value === "")) {
+        alert("You must fill in all fields before sending the form");
+        return;
+    }
     bookDialog.close("send");
 });
