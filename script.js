@@ -25,22 +25,49 @@ function addBookToLibrary(book) {
 
 // Create a book Card
 
+let edit = false;
+
 function makeCard(book) {
     const card = document.createElement("div");
+    const buttons = document.createElement("div");
     card.classList.add("card");
     layoutData(book, card);
-    makeDeleteBtn(book, card);
+    buttons.appendChild(makeDeleteBtn(book, card));
+    buttons.appendChild(makeEditBtn())
+    card.appendChild(buttons);
     return card;
+}
+
+function updateLibrary() {
+    
+}
+
+function editCard() {
+    document.querySelector(".delete-btn").toggleAttribute("disabled");
+        [...document.querySelectorAll(".value")].forEach(elem => {
+            elem.toggleAttribute("disabled");
+            elem.classList.toggle("editable");
+        });
+}
+
+function makeEditBtn() {
+    const editBtn = document.createElement("button");
+    editBtn.classList.add("edit-btn");
+    editBtn.textContent = "EDIT";
+    editBtn.addEventListener("click", editCard);
+    return editBtn;
 }
 
 function makeDeleteBtn(book, card) {
     const deleteBtn = document.createElement("button");
+    deleteBtn.classList.add("delete-btn");
     deleteBtn.textContent = "X";
+    deleteBtn.onclick = 
     deleteBtn.addEventListener("click", () => {
         myLibrary.splice(myLibrary.indexOf(book), 1);
         card.remove();
     });
-    card.appendChild(deleteBtn);
+    return deleteBtn;
 }
 
 function layoutData(book, card) {
@@ -55,7 +82,6 @@ function layoutData(book, card) {
         else value.checked = book[key][0];
         value.setAttribute("disabled", "disabled");
         value.classList.add("value");
-
 
         para.appendChild(label);
         para.appendChild(value);
