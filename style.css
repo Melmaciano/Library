@@ -1,48 +1,240 @@
 * {
     box-sizing: border-box;
+    padding: 0;
+    margin: 0;
 }
 
 body {
     height: 100vh;
-    width: 100%;
+    position: relative;
+    line-height: 1.5;
+    background-image: url(./library.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: #693806;
+    background-attachment: fixed;
 }
+
+/* footer, credits background image */
+
+footer {
+    width: 30vw;
+    text-align: right;
+    position: absolute;
+    bottom: 2em;
+    right: 2em;
+    color: white;
+    text-shadow: 1px 1px 1px black;
+}
+
+footer a {
+    text-decoration: none;
+    color: #4affe7;
+}
+
+footer a:hover {
+    color: #2c9285;
+}
+
+footer a:active {
+    color: #04f3d3;
+}
+
+/* output, card container */
 
 output {
+    position: relative;
+    top: 4vh;
+    height: 80vh;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     justify-items: center;
     gap: 15px;
+    max-height: 85vh;
+    overflow-y: scroll;
+    padding: 0 5%;
 }
 
+/* card style */
+
 .card {
+    width: 300px;
+    height: max-content;
     border: 2px solid black;
     border-radius: 15px;
-    box-shadow: inset 1px 1px 2px #555,
-        1px 1px 2px #555;
+    box-shadow: inset 1px 1px 3px #555,
+        1px 1px 3px #555;
     padding: 1em 2em;
-    width: max-content;
     display: flex;
     flex-direction: column;
     align-items: center;
+    background-color: rgb(255, 255, 255, 80%);
 }
 
 .card p {
     width: 100%;
+    display: flex;
+    gap: 1em;
 }
 
-.value {
-    border: none;
-    background-color: none;
-    color: inherit;
-}
-
-.editable {
-    box-shadow: 1px 1px 2px 1px #555;
-    border-radius: 10px;
+.card p :first-child {
+    width: 4em;
+    text-align: right;
+    font-weight: bold;
 }
 
 .card button {
     width: max-content;
     padding: 0.2em 0.5em;
     margin: 0 1em;
+}
+
+.card {
+    transform: scale(1);
+    transition: transform 0.2s ease-in-out;
+}
+
+@starting-style {
+    .card {
+        transform: scale(0);
+    }
+}
+
+/* new-book button */
+
+#new-book {
+    font-size: 1.2em;
+    width: 7em;
+    position: fixed;
+    bottom: 2%;
+    left: calc(50% - 3.5em);
+    padding: 1.2em 0.5em;
+    transform-origin: bottom center;
+    transition: transform 0.2s ease-in-out;
+    background-color: rgb(255, 255, 255, 60%);
+    border: 2px solid #444;
+    border-radius: 15px;
+    box-shadow: inset 1px 1px 3px #555,
+        1px 1px 3px #555;
+}
+
+#new-book:hover {
+    transform: scale(1.2);
+}
+
+/* dialog and form */
+
+dialog {
+    padding: 1.5em;
+    width: 22em;
+    height: 14em;
+    position: absolute;
+    top: calc(50% - 7em);
+    left: calc(50% - 11em);
+    border: 2px solid black;
+    border-radius: 15px;
+    box-shadow: inset 1px 1px 3px #555,
+        1px 1px 3px #555;
+}
+
+dialog form {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+}
+
+dialog form > * {
+    width: 100%;
+}
+
+dialog form label {
+    display: inline-block;
+    min-width: 4em;
+    text-align: right;
+}
+
+dialog form p {
+    display: flex;
+}
+
+dialog form > :last-child, .card > :last-child {
+    padding: 1em 0 0;
+    justify-content: center;
+    gap: 1em;
+}
+
+dialog form input:not([type=checkbox]) {
+    width: 100%;
+}
+
+dialog form input {
+    padding: 0.2em 0.5em;
+    margin-left: 1em ;
+}
+
+dialog form button {
+    padding: 0.2em 0.5em;
+}
+
+dialog[open] {
+    opacity: 1;
+    transform: scale(1);
+}
+
+dialog {
+    opacity: 0;
+    transform: scale(0);
+    transition: 
+        opacity 0.2s ease-in-out,
+        transform 0.2s ease-in-out,
+        overlay 0.2s ease-in-out allow-discrete,
+        display 0.2s ease-in-out allow-discrete;
+}
+
+@starting-style {
+        dialog[open] {
+            opacity: 0;
+            transform: scale(0)
+        }
+}
+
+dialog::backdrop {
+    background-color: rgb(0, 0, 0, 0%);
+    transition: 
+        background-color 0.2s ease-in-out,
+        overlay 0.2s ease-in-out allow-discrete,
+        display 0.2s ease-in-out allow-discrete;
+}
+
+dialog[open]::backdrop {
+    background-color: rgb(0, 0, 0, 50%);
+}
+
+@starting-style {
+    dialog[open]::backdrop {
+        background-color: rgb(0, 0, 0, 0%);
+    }
+}
+
+/* button styles */
+
+form button, .card button {
+    padding: 0.4em 0.2em;
+    border: 1px solid #444;
+    border-radius: 5px;
+    box-shadow: inset 1px 1px 2px #555,
+        1px 1px 2px #555;
+}
+
+form button:hover, .card button:hover {
+    transform: scale(1.1);
+    transition: transform 0.2s ease-in-out;
+}
+
+form button:active, .card button:active {
+    transform: translateY(5px);
+    transition: transform 0.1s ease-in-out;
 }

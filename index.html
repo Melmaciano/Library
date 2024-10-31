@@ -8,31 +8,36 @@
     <script src="./script.js" defer></script>
 </head>
 <body>
-    <button id="new-book">NEW BOOK</button>
-    <dialog id="book-dialog">
-        <form>
-            <p>
-                <label for="author">Author: </label>
-                <input type="text" id="author" required>
-            </p>
-            <p>
-                <label for="title">Title: </label>
-                <input type="text" id="title" required>
-            </p>
-            <p>
-                <label for="pages">Pages: </label>
-                <input type="number" id="pages" required>
-            </p>
-            <p>
-                <label for="read">Read: </label>
-                <input type="checkbox" id="read">
-            </p>
-            <p>
-                <button id="cancel-btn" formmethod="dialog">Cancel</button>
-                <button id="confirm-btn">Confirm</button>
-            </p>
-        </form>
-    </dialog>
-    <output></output>
+    <div class="container">
+        <button id="new-book">NEW BOOK</button>
+        <dialog id="book-dialog">
+            <form>
+                <p>
+                    <label for="author">Author: </label>
+                    <input type="text" id="author" required autocomplete="off" maxlength="30">
+                </p>
+                <p>
+                    <label for="title">Title: </label>
+                    <input type="text" id="title" required autocomplete="off" maxlength="30">
+                </p>
+                <p>
+                    <label for="pages">Pages: </label>
+                    <input type="number" id="pages" required autocomplete="off" max="50000">
+                </p>
+                <p>
+                    <label for="read">Read: </label>
+                    <input type="checkbox" id="read" autocomplete="off">
+                </p>
+                <p>
+                    <button id="cancel-btn" formmethod="dialog">Cancel</button>
+                    <button id="confirm-btn">Confirm</button>
+                </p>
+            </form>
+        </dialog>
+        <output></output>
+    </div>
+    <footer>
+        Photo by <a href="https://unsplash.com/@glennoble" target="_blank" rel="noopener" rel="noreferrer">Glen Noble</a> on <a href="https://unsplash.com/" target="_blank" rel="noopener" rel="noreferrer">UnPlush</a>
+    </footer>
 </body>
 </html>

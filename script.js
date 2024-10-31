@@ -8,6 +8,8 @@ const cancelBtn = document.querySelector("#cancel-btn")
 
 const myLibrary = [];
 
+// Make book data
+
 function Book({ author, title, pages, read, id }) {
     this.author = author;
     this.title = title;
@@ -33,6 +35,8 @@ function editCard(card) {
     edit = !edit;
     currentBook = myLibrary.find(book => book.id === card.id);
     dialogValues.forEach(inputField => {
+        inputField.type === "checkbox" ?
+        inputField.checked = currentBook[inputField.id][0] :
         inputField.value = currentBook[inputField.id][0];
     })
     bookDialog.showModal();
@@ -41,18 +45,22 @@ function editCard(card) {
 function updateBook() {
     for (let key in currentBook) {
         if(key === "id") continue;
-        else if (key === "read") currentBook[key][0] = dialogValues.find(inputField => inputField.id === key).checked;
-        else currentBook[key][0] = dialogValues.find(inputField => inputField.id === key).value;
+        else if (key === "read") currentBook[key][0] = bookDialog.querySelector(`#${key}`).checked;
+        else currentBook[key][0] = bookDialog.querySelector(`#${key}`).value;
     }
-    edit = !edit;
+    
     updateLayout();
 }
 
 function updateLayout() {
-    const cardValues = [...document.querySelectorAll(`.card#${currentBook.id} input`)];
-    cardValues.forEach(inputField => {
-        if (inputField.id === "card-read") inputField.checked = currentBook[inputField.id.slice(5)][0];
-        else inputField.value = currentBook[inputField.id.slice(5)][0];
+    const cardValues = [...document.querySelectorAll(`.card#${currentBook.id} .data-value`)];
+    cardValues.forEach(dataValue => {
+        const id = dataValue.id.slice(5); // It is not possible use the same id, so I use slice method to have the same id as book and dialog input
+        if (dataValue.id === "card-read") { 
+            dataValue.textContent = currentBook[id][0] === true ? "read" : "unread";
+        } else {
+            dataValue.textContent = currentBook[id][0];
+        }
     });
 }
 
@@ -66,6 +74,7 @@ function makeCard(book) {
     buttons.appendChild(makeDeleteBtn(book, card));
     buttons.appendChild(makeEditBtn(card))
     card.appendChild(buttons);
+
     return card;
 }
 
@@ -81,8 +90,7 @@ function makeEditBtn(card) {
 function makeDeleteBtn(book, card) {
     const deleteBtn = document.createElement("button");
     deleteBtn.classList.add("delete-btn");
-    deleteBtn.textContent = "X";
-    deleteBtn.onclick = 
+    deleteBtn.textContent = "DELETE";
     deleteBtn.addEventListener("click", () => {
         myLibrary.splice(myLibrary.indexOf(book), 1);
         card.remove();
@@ -95,17 +103,15 @@ function layoutData(book, card) {
         if (key === "id") { card.setAttribute("id", book.id); continue }
 
         const para = document.createElement("p");
-        const label = document.createElement("span");
-        const value = document.createElement("input");
-        label.textContent = key + ": ";
-        
-        value.setAttribute("type", book[key][1]); // Must be before 
+        const label = document.createElement("div");
+        const value = document.createElement("div");
+        para.classList.add("data-para");
         value.setAttribute("id", `card-${key}`);
-        value.setAttribute("disabled", "disabled");
-        value.classList.add("value");
+        value.classList.add("data-value");     
+        label.textContent = key[0].toUpperCase() + key.slice(1) + ": ";
 
-        if (value.type !== "checkbox") value.value = book[key][0];
-        else value.checked = book[key][0];
+        if (value.id !== "card-read") value.textContent = book[key][0];
+        else value.textContent = book[key][0] === true ? "read" : "unread";
 
         para.appendChild(label);
         para.appendChild(value);
@@ -113,11 +119,18 @@ function layoutData(book, card) {
     }
 }
 
-// Make the dialog functional
+// Empty the form
+
+function emptyForm() {
+    dialogValues.forEach(inputField => inputField.type === "checkbox" ? 
+        inputField.checked = false : 
+        inputField.value = "");
+}
+
+// Make the dialog functional, add events
 openDialog.addEventListener("click", () => bookDialog.showModal());
 
 bookDialog.addEventListener("close", () => {
-    if (bookDialog.returnValue === "close") return;
     const book = {};
 
     dialogValues.forEach(elem => {
@@ -126,15 +139,19 @@ bookDialog.addEventListener("close", () => {
         const value = elem.type === "checkbox" ? elem.checked : elem.value;
         book[cleanLabel] = [value, elem.type];
     });
-    
-    if (edit) {
-        book.id = currentBook.id;
-        updateBook(book); 
-        return;
-    };
 
-    book.id = "id" + Date.now(); // Unique id
-    addBookToLibrary(book);
+    if (edit && bookDialog.returnValue === "close") {       // Edit and close
+        edit = !edit; 
+    } else if (edit && bookDialog.returnValue === "send") { // Edit and send
+        edit = !edit;                            
+        book.id = currentBook.id;
+        updateBook(book);
+    } else if (bookDialog.returnValue === "send") {         // Make and send
+        book.id = "id" + Date.now();
+        addBookToLibrary(book);
+    }
+
+    emptyForm();                                            // When close without send, nothing happens
 });
 
 cancelBtn.addEventListener("click", (e) => {
@@ -145,8 +162,22 @@ cancelBtn.addEventListener("click", (e) => {
 confirmBtn.addEventListener("click", (e) =>{
     e.preventDefault();
     if (dialogValues.some(elem => elem.value === "")) {
-        alert("You must fill in all fields before sending the form");
+        alert("It seems that you have not filled out all the fields or you are using incorrect values");
         return;
     }
     bookDialog.close("send");
+});
+
+dialogValues.forEach(elem => {
+    elem.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") { 
+            e.preventDefault();
+
+            if (dialogValues.some(elem => elem.value === "")) {
+                alert("It seems that you have not filled out all the fields or you are using incorrect values");
+            } else {
+                bookDialog.close("send");
+            }
+        }
+    });
 });
