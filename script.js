@@ -69,13 +69,21 @@ function updateLayout() {
 function makeCard(book) {
     const card = document.createElement("div");
     const buttons = document.createElement("div");
+    const dataContainer = document.createElement("div");
     card.classList.add("card");
-    layoutData(book, card);
+    dataContainer.classList.add("data-container");
+    layoutData(book, card).forEach(dataElement => dataContainer.appendChild(dataElement));
     buttons.appendChild(makeDeleteBtn(book, card));
-    buttons.appendChild(makeEditBtn(card))
+    buttons.appendChild(makeEditBtn(card));
+    card.appendChild(dataContainer);
     card.appendChild(buttons);
+    card.style.background = `rgb(${random()}, ${random()}, ${random()}, 0.9)`
 
     return card;
+}
+
+function random() {
+    return Math.floor(Math.random() * 256);
 }
 
 function makeEditBtn(card) {
@@ -102,6 +110,8 @@ function makeDeleteBtn(book, card) {
 }
 
 function layoutData(book, card) {
+    const dataElements = [];
+
     for(let key in book) {
         if (key === "id") { card.setAttribute("id", book.id); continue }
 
@@ -118,8 +128,10 @@ function layoutData(book, card) {
 
         para.appendChild(label);
         para.appendChild(value);
-        card.appendChild(para);
+        dataElements.push(para);
     }
+
+    return dataElements;
 }
 
 // Empty the form
@@ -129,6 +141,17 @@ function emptyForm() {
         inputField.checked = false : 
         inputField.value = "");
 }
+
+// Shake the form when is modified
+
+function shakeCard(book) {
+    const card = document.querySelector(`#${book.id}`);
+    card.style.animation = "shake-card 0.6s"
+    setTimeout(() => {
+        card.style.animation = "none";
+    }, 600);
+}
+
 
 // Make the dialog functional, add events
 openDialog.addEventListener("click", () => bookDialog.showModal());
@@ -149,6 +172,7 @@ bookDialog.addEventListener("close", () => {
         edit = !edit;                            
         book.id = currentBook.id;
         updateBook(book);
+        shakeCard(book);
     } else if (bookDialog.returnValue === "send") {         // Make and send
         book.id = "id" + Date.now();
         addBookToLibrary(book);
