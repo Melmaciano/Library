@@ -93,7 +93,10 @@ function makeDeleteBtn(book, card) {
     deleteBtn.textContent = "DELETE";
     deleteBtn.addEventListener("click", () => {
         myLibrary.splice(myLibrary.indexOf(book), 1);
-        card.remove();
+        card.style.transform = "scale(0)"
+        setTimeout(() => {
+            card.remove();
+        }, 200);
     });
     return deleteBtn;
 }

@@ -4,6 +4,11 @@
     margin: 0;
 }
 
+*:focus {
+    outline: none;
+    border: 1px solid #00bda4 !important;
+}
+
 body {
     height: 100vh;
     position: relative;
@@ -62,14 +67,17 @@ output {
     width: 300px;
     height: max-content;
     border: 2px solid black;
-    border-radius: 15px;
+    border-radius: 15px 5px 5px 15px;
     box-shadow: inset 1px 1px 3px #555,
         1px 1px 3px #555;
     padding: 1em 2em;
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: rgb(255, 255, 255, 80%);
+    background-color: rgba(155, 88, 20, 0.8);
+    color: white;
+    text-shadow: 1px 1px 1px black;
+    position: relative;
 }
 
 .card p {
@@ -88,6 +96,21 @@ output {
     width: max-content;
     padding: 0.2em 0.5em;
     margin: 0 1em;
+    background-color: rgba(102, 58, 15, 0.8);
+    color: white;
+}
+
+.card::after {
+    content: " ";
+    width: 1em;
+    position: absolute;
+    height: 110%;
+    top: 0;
+    left: 5%;
+    background-image: linear-gradient(
+        rgb(255, 72, 0) 80%,
+        #492704
+    );
 }
 
 .card {
@@ -219,11 +242,11 @@ dialog[open]::backdrop {
     }
 }
 
-/* button styles */
+/* button / inputs styles */
 
 form button, .card button {
     padding: 0.4em 0.2em;
-    border: 1px solid #444;
+    border: 1px solid black;
     border-radius: 5px;
     box-shadow: inset 1px 1px 2px #555,
         1px 1px 2px #555;
@@ -241,4 +264,37 @@ form button:active, .card button:active {
 
 button {
     cursor: pointer;
+}
+
+input {
+    border: 1px solid #444;
+}
+
+input[type=checkbox] {
+    appearance: none;
+}
+
+input[type=checkbox] {
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+    background-color: white;
+    position: relative;
+}
+
+input[type=checkbox]:checked::after {
+    transform: scale(1);
+}
+
+input[type=checkbox]::after {
+    transform-origin: bottom center;
+    transform: scale(0);
+    transition: transform .2s ease-in;
+    content: "X";
+    color: black;
+    position: absolute;
+    font-size: 16px;
+    top: 4px;
+    left: 5px;
+    font-weight: bold;
 }
