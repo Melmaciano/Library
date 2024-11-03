@@ -11,50 +11,27 @@ const myLibrary = [];
 // Make book data
 
 function Book({ author, title, pages, read }) {
+    // Properties
     this.author = author;
     this.title = title;
     this.pages = pages;
     this.read = read;
     this.id = "id-" + (Date.now() * Math.random());
     this.background = `rgb(${random()}, ${random()}, ${random()}, 0.9)`;
+    // Make card
     this.makeCard = makeCard;
     this.card = this.makeCard(this);
+    // Delete card
     this.delete = function() {
         this.card.style.transform = "scale(0)";
         setTimeout(() => {
             this.card.remove();
         }, 200);
     };
+    // Edit card
     this.takeCardValuesToForm = takeCardValuesToForm;
-    this.edit = function({ author, title, pages, read }) {
-        this.takeCardValuesToForm();
-        this.author = author;
-        this.title = title;
-        this.pages = pages;
-        this.read = read;
-        this.card.remove();
-        this.card = this.makeCard(this);
-        edit = !edit;
-        shakeCard(this.card);
-    };
-}
-
-// Edit card
-
-function takeCardValuesToForm() {
-    dialogInputs.forEach(input => {
-        if (input.type === "checkbox") input.checked = this.read === "read" ? "true" : "false"; 
-        else input.value = this[input.id];
-    });
-}
-
-// Shake the form when is modified
-
-function shakeCard(card) {
-    card.style.animation = "shake-card 0.6s"
-    setTimeout(() => {
-        card.style.animation = "none";
-    }, 600);
+    this.updateCard = updateCard;
+    this.edit = editCard;
 }
 
 // Make card
@@ -69,21 +46,21 @@ function makeCard(book) {
     card.style.background = this.background
     card.innerHTML = (`
         <div class="data-container">
-            <div class="data-para">
+            <div>
                 <p>Author: </p>
-                <p>${this.author}</p>
+                <p class="data-para" id="para-author">${this.author}</p>
             </div>
-            <div class="data-para">
+            <div>
                 <p>Title: </p>
-                <p>${this.title}</p>
+                <p class="data-para" id="para-title">${this.title}</p>
             </div>
-            <div class="data-para">
+            <div>
                 <p>Pages: </p>
-                <p>${this.pages}</p>
+                <p class="data-para" id="para-pages">${this.pages}</p>
             </div>
-            <div class="data-para">
+            <div>
                 <p>Read: </p>
-                <p>${this.read ? "read" : "unread"}</p>
+                <p class="data-para" id="para-read">${this.read ? "read" : "unread"}</p>
             </div>
         </div>
         <div>
@@ -96,9 +73,44 @@ function makeCard(book) {
     card.querySelector(".edit-btn").addEventListener("click", () => {
         edit = !edit;
         currentBook = book;
+        book.takeCardValuesToForm();
         bookDialog.showModal();
     })
     return card;
+}
+
+// Edit card
+
+function takeCardValuesToForm() {
+    dialogInputs.forEach(input => {
+        if (input.type === "checkbox") input.checked = this.read === "read" ? "true" : "false"; 
+        else input.value = this[input.id];
+    });
+}
+
+function editCard({ author, title, pages, read }) {
+    this.author = author;
+    this.title = title;
+    this.pages = pages;
+    this.read = read;
+    this.updateCard();
+    edit = !edit;
+    shakeCard(this.card);
+};
+
+function updateCard() {
+    [...this.card.querySelectorAll(".data-para")].forEach((para) => {
+        para.textContent = this[para.id.slice(5)];
+    });
+}
+
+// Shake the form when is modified
+
+function shakeCard(card) {
+    card.style.animation = "shake-card 0.6s"
+    setTimeout(() => {
+        card.style.animation = "none";
+    }, 600);
 }
 
 // Random
@@ -132,7 +144,7 @@ function extractDialogInputs() {
 openDialog.addEventListener("click", () => bookDialog.showModal());
 
 bookDialog.addEventListener("close", () => {
-    if (bookDialog.returnValue === "close") return;
+    if (bookDialog.returnValue === "close") { emptyForm(); edit = !edit; return; };
     const book = extractDialogInputs();
     if (edit) currentBook.edit(book);
     else myLibrary.push(new Book(book));
@@ -142,6 +154,14 @@ bookDialog.addEventListener("close", () => {
 cancelBtn.addEventListener("click", (e) => {
     e.preventDefault();
     bookDialog.close("close");
+});
+
+confirmBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (dialogInputs.some(elem => elem.value === "")) {
+        alert("It seems that you have not filled out all the fields or you are using incorrect values");
+    }
+    else bookDialog.close("send");
 });
 
 dialogInputs.forEach(elem => {
