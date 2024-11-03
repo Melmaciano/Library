@@ -144,12 +144,12 @@ cancelBtn.addEventListener("click", (e) => {
     bookDialog.close("close");
 });
 
-dialogValues.forEach(elem => {
+dialogInputs.forEach(elem => {
     elem.addEventListener("keydown", (e) => {
         if (e.key === "Enter") { 
             e.preventDefault();
 
-            if (dialogValues.some(elem => elem.value === "")) {
+            if (dialogInputs.some(elem => elem.value === "")) {
                 alert("It seems that you have not filled out all the fields or you are using incorrect values");
             } else {
                 bookDialog.close("send");
