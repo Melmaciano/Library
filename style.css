@@ -95,13 +95,13 @@ output {
     box-shadow: 2px 2px 1px 2px black;
 }
 
-.card p {
+.card > .data-container > div {
     width: 100%;
     display: flex;
     gap: 1em;
 }
 
-.card p :first-child {
+.card > .data-container > div > :first-child {
     width: 4em;
     text-align: right;
     font-weight: bold;

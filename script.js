@@ -1,8 +1,8 @@
 // Selectors for dialog
 const openDialog = document.querySelector("#new-book");
 const bookDialog = document.querySelector("#book-dialog");
+const dialogInputs = [...document.querySelectorAll("#book-dialog input")];
 const outputBox = document.querySelector("output");
-const dialogValues = [...document.querySelectorAll("#book-dialog input")];
 const confirmBtn = document.querySelector("#confirm-btn");
 const cancelBtn = document.querySelector("#cancel-btn")
 
@@ -10,189 +10,138 @@ const myLibrary = [];
 
 // Make book data
 
-function Book({ author, title, pages, read, id }) {
+function Book({ author, title, pages, read }) {
     this.author = author;
     this.title = title;
     this.pages = pages;
     this.read = read;
-    this.id = id;
-}
-
-function addBookToLibrary(book) {
-    const newBook = new Book(book);
-    console.log(newBook);
-    myLibrary.push(newBook);
-
-    outputBox.appendChild(makeCard(book));
+    this.id = "id-" + (Date.now() * Math.random());
+    this.background = `rgb(${random()}, ${random()}, ${random()}, 0.9)`;
+    this.makeCard = makeCard;
+    this.card = this.makeCard(this);
+    this.delete = function() {
+        this.card.style.transform = "scale(0)";
+        setTimeout(() => {
+            this.card.remove();
+        }, 200);
+    };
+    this.takeCardValuesToForm = takeCardValuesToForm;
+    this.edit = function({ author, title, pages, read }) {
+        this.takeCardValuesToForm();
+        this.author = author;
+        this.title = title;
+        this.pages = pages;
+        this.read = read;
+        this.card.remove();
+        this.card = this.makeCard(this);
+        edit = !edit;
+        shakeCard(this.card);
+    };
 }
 
 // Edit card
 
-let currentBook;
-let edit = false;
-
-function editCard(card) {
-    edit = !edit;
-    currentBook = myLibrary.find(book => book.id === card.id);
-    dialogValues.forEach(inputField => {
-        inputField.type === "checkbox" ?
-        inputField.checked = currentBook[inputField.id][0] :
-        inputField.value = currentBook[inputField.id][0];
-    })
-    bookDialog.showModal();
-}
-
-function updateBook() {
-    for (let key in currentBook) {
-        if(key === "id") continue;
-        else if (key === "read") currentBook[key][0] = bookDialog.querySelector(`#${key}`).checked;
-        else currentBook[key][0] = bookDialog.querySelector(`#${key}`).value;
-    }
-    
-    updateLayout();
-}
-
-function updateLayout() {
-    const cardValues = [...document.querySelectorAll(`.card#${currentBook.id} .data-value`)];
-    cardValues.forEach(dataValue => {
-        const id = dataValue.id.slice(5); // It is not possible use the same id, so I use slice method to have the same id as book and dialog input
-        if (dataValue.id === "card-read") { 
-            dataValue.textContent = currentBook[id][0] === true ? "read" : "unread";
-        } else {
-            dataValue.textContent = currentBook[id][0];
-        }
+function takeCardValuesToForm() {
+    dialogInputs.forEach(input => {
+        if (input.type === "checkbox") input.checked = this.read === "read" ? "true" : "false"; 
+        else input.value = this[input.id];
     });
-}
-
-// Create a book Card
-
-function makeCard(book) {
-    const card = document.createElement("div");
-    const buttons = document.createElement("div");
-    const dataContainer = document.createElement("div");
-    card.classList.add("card");
-    dataContainer.classList.add("data-container");
-    layoutData(book, card).forEach(dataElement => dataContainer.appendChild(dataElement));
-    buttons.appendChild(makeDeleteBtn(book, card));
-    buttons.appendChild(makeEditBtn(card));
-    card.appendChild(dataContainer);
-    card.appendChild(buttons);
-    card.style.background = `rgb(${random()}, ${random()}, ${random()}, 0.9)`
-
-    return card;
-}
-
-function random() {
-    return Math.floor(Math.random() * 256);
-}
-
-function makeEditBtn(card) {
-    const editBtn = document.createElement("button");
-    editBtn.classList.add("edit-btn");
-    editBtn.textContent = "EDIT";
-    editBtn.addEventListener("click", () => editCard(card));
-
-    return editBtn;
-}
-
-function makeDeleteBtn(book, card) {
-    const deleteBtn = document.createElement("button");
-    deleteBtn.classList.add("delete-btn");
-    deleteBtn.textContent = "DELETE";
-    deleteBtn.addEventListener("click", () => {
-        myLibrary.splice(myLibrary.indexOf(book), 1);
-        card.style.transform = "scale(0)"
-        setTimeout(() => {
-            card.remove();
-        }, 200);
-    });
-    return deleteBtn;
-}
-
-function layoutData(book, card) {
-    const dataElements = [];
-
-    for(let key in book) {
-        if (key === "id") { card.setAttribute("id", book.id); continue }
-
-        const para = document.createElement("p");
-        const label = document.createElement("div");
-        const value = document.createElement("div");
-        para.classList.add("data-para");
-        value.setAttribute("id", `card-${key}`);
-        value.classList.add("data-value");     
-        label.textContent = key[0].toUpperCase() + key.slice(1) + ": ";
-
-        if (value.id !== "card-read") value.textContent = book[key][0];
-        else value.textContent = book[key][0] === true ? "read" : "unread";
-
-        para.appendChild(label);
-        para.appendChild(value);
-        dataElements.push(para);
-    }
-
-    return dataElements;
-}
-
-// Empty the form
-
-function emptyForm() {
-    dialogValues.forEach(inputField => inputField.type === "checkbox" ? 
-        inputField.checked = false : 
-        inputField.value = "");
 }
 
 // Shake the form when is modified
 
-function shakeCard(book) {
-    const card = document.querySelector(`#${book.id}`);
+function shakeCard(card) {
     card.style.animation = "shake-card 0.6s"
     setTimeout(() => {
         card.style.animation = "none";
     }, 600);
 }
 
+// Make card
 
-// Make the dialog functional, add events
-openDialog.addEventListener("click", () => bookDialog.showModal());
+let edit = false;
+let currentBook;
 
-bookDialog.addEventListener("close", () => {
+function makeCard(book) {
+    const card = document.createElement("div");
+    card.classList.add("card");
+    card.id = this.id;
+    card.style.background = this.background
+    card.innerHTML = (`
+        <div class="data-container">
+            <div class="data-para">
+                <p>Author: </p>
+                <p>${this.author}</p>
+            </div>
+            <div class="data-para">
+                <p>Title: </p>
+                <p>${this.title}</p>
+            </div>
+            <div class="data-para">
+                <p>Pages: </p>
+                <p>${this.pages}</p>
+            </div>
+            <div class="data-para">
+                <p>Read: </p>
+                <p>${this.read ? "read" : "unread"}</p>
+            </div>
+        </div>
+        <div>
+            <button class="delete-btn">DELETE</button>
+            <button class="edit-btn">EDIT</button>
+        </div>
+    `);
+    outputBox.appendChild(card);
+    card.querySelector(".delete-btn").addEventListener("click", () => { book.delete() });
+    card.querySelector(".edit-btn").addEventListener("click", () => {
+        edit = !edit;
+        currentBook = book;
+        bookDialog.showModal();
+    })
+    return card;
+}
+
+// Random
+
+function random() {
+    return Math.floor(Math.random() * 256);
+}
+
+// Empty the form
+
+function emptyForm() {
+    dialogInputs.forEach(inputField => inputField.type === "checkbox" ? 
+        inputField.checked = false : 
+        inputField.value = "");
+}
+
+// Dialog
+
+function extractDialogInputs() {
     const book = {};
-
-    dialogValues.forEach(elem => {
+    dialogInputs.forEach(elem => {
         const label = document.querySelector(`label[for=${elem.id}]`);
         const cleanLabel = label.textContent.replace(": ", "").toLowerCase();
         const value = elem.type === "checkbox" ? elem.checked : elem.value;
-        book[cleanLabel] = [value, elem.type];
+        book[cleanLabel] = value;
     });
+    console.log(book)
+    return book;
+}
 
-    if (edit && bookDialog.returnValue === "close") {       // Edit and close
-        edit = !edit; 
-    } else if (edit && bookDialog.returnValue === "send") { // Edit and send
-        edit = !edit;                            
-        book.id = currentBook.id;
-        updateBook(book);
-        shakeCard(book);
-    } else if (bookDialog.returnValue === "send") {         // Make and send
-        book.id = "id" + Date.now();
-        addBookToLibrary(book);
-    }
+openDialog.addEventListener("click", () => bookDialog.showModal());
 
-    emptyForm();                                            // When close without send, nothing happens
+bookDialog.addEventListener("close", () => {
+    if (bookDialog.returnValue === "close") return;
+    const book = extractDialogInputs();
+    if (edit) currentBook.edit(book);
+    else myLibrary.push(new Book(book));
+    emptyForm();
 });
 
 cancelBtn.addEventListener("click", (e) => {
     e.preventDefault();
     bookDialog.close("close");
-});
-
-confirmBtn.addEventListener("click", (e) =>{
-    e.preventDefault();
-    if (dialogValues.some(elem => elem.value === "")) {
-        alert("It seems that you have not filled out all the fields or you are using incorrect values");
-        return;
-    }
-    bookDialog.close("send");
 });
 
 dialogValues.forEach(elem => {
