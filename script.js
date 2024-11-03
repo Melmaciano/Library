@@ -20,14 +20,8 @@ function Book({ author, title, pages, read }) {
     this.background = `rgb(${random()}, ${random()}, ${random()}, 0.9)`;
     // Make card
     this.makeCard = makeCard;
-    this.card = this.makeCard(this);
     // Delete card
-    this.delete = function() {
-        this.card.style.transform = "scale(0)";
-        setTimeout(() => {
-            this.card.remove();
-        }, 200);
-    };
+    this.delete = deleteCard;
     // Edit card
     this.takeCardValuesToForm = takeCardValuesToForm;
     this.updateCard = updateCard;
@@ -39,7 +33,7 @@ function Book({ author, title, pages, read }) {
 let edit = false;
 let currentBook;
 
-function makeCard(book) {
+function makeCard() {
     const card = document.createElement("div");
     card.classList.add("card");
     card.id = this.id;
@@ -68,7 +62,11 @@ function makeCard(book) {
             <button class="edit-btn">EDIT</button>
         </div>
     `);
+    this.card = card;
     outputBox.appendChild(card);
+
+    // Events
+    const book = this;
     card.querySelector(".delete-btn").addEventListener("click", () => { book.delete() });
     card.querySelector(".edit-btn").addEventListener("click", () => {
         edit = !edit;
@@ -76,8 +74,16 @@ function makeCard(book) {
         book.takeCardValuesToForm();
         bookDialog.showModal();
     })
-    return card;
 }
+
+// Delete card
+
+function deleteCard() {
+    this.card.style.transform = "scale(0)";
+    setTimeout(() => {
+        this.card.remove();
+    }, 200);
+};
 
 // Edit card
 
@@ -137,7 +143,6 @@ function extractDialogInputs() {
         const value = elem.type === "checkbox" ? elem.checked : elem.value;
         book[cleanLabel] = value;
     });
-    console.log(book)
     return book;
 }
 
@@ -147,7 +152,11 @@ bookDialog.addEventListener("close", () => {
     if (bookDialog.returnValue === "close") { emptyForm(); edit = !edit; return; };
     const book = extractDialogInputs();
     if (edit) currentBook.edit(book);
-    else myLibrary.push(new Book(book));
+    else {
+        const newBook = new Book(book);
+        newBook.makeCard();
+        myLibrary.push(newBook);    
+    };
     emptyForm();
 });
 
