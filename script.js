@@ -10,22 +10,22 @@ const myLibrary = [];
 
 // Make book data
 
-function Book({ author, title, pages, read }) {
-    // Properties
-    this.author = author;
-    this.title = title;
-    this.pages = pages;
-    this.read = read;
-    this.id = "id-" + (Date.now() * Math.random());
-    this.background = `rgb(${random()}, ${random()}, ${random()}, 0.9)`;
-    // Make card
-    this.makeCard = makeCard;
-    // Delete card
-    this.delete = deleteCard;
+class Book {
+    author;
+    title;
+    pages;
+    read;
+    constructor(book) {
+        Object.assign(this, book);
+        this.id = "id-" + (Date.now() * Math.random());
+        this.background = `rgb(${random()}, ${random()}, ${random()}, 0.9)`;
+    }
+    makeCard = makeCard;
+    deleteCard = deleteCard;
     // Edit card
-    this.takeCardValuesToForm = takeCardValuesToForm;
-    this.updateCard = updateCard;
-    this.edit = editCard;
+    takeCardValuesToForm = takeCardValuesToForm;
+    updateCard = updateCard;
+    editCard = editCard;
 }
 
 // Make card
@@ -37,7 +37,7 @@ function makeCard() {
     const card = document.createElement("div");
     card.classList.add("card");
     card.id = this.id;
-    card.style.background = this.background
+    card.style.background = this.background;
     card.innerHTML = (`
         <div class="data-container">
             <div>
@@ -54,7 +54,7 @@ function makeCard() {
             </div>
             <div>
                 <p>Read: </p>
-                <p class="data-para" id="para-read">${this.read ? "read" : "unread"}</p>
+                <p class="data-para" id="para-read">${this.read === "true" ? "read" : "unread"}</p>
             </div>
         </div>
         <div>
@@ -67,7 +67,7 @@ function makeCard() {
 
     // Events
     const book = this;
-    card.querySelector(".delete-btn").addEventListener("click", () => { book.delete() });
+    card.querySelector(".delete-btn").addEventListener("click", () => { book.deleteCard() });
     card.querySelector(".edit-btn").addEventListener("click", () => {
         edit = !edit;
         currentBook = book;
@@ -87,26 +87,34 @@ function deleteCard() {
 
 // Edit card
 
-function takeCardValuesToForm() {
+//Bring value from book instances to form
+function takeCardValuesToForm() { 
     dialogInputs.forEach(input => {
-        if (input.type === "checkbox") input.checked = this.read === "read" ? "true" : "false"; 
+        if (input.type === "checkbox") input.checked = this.read === "true" ? true : false; 
         else input.value = this[input.id];
     });
 }
 
+//When user sends form, instance book values are updated
 function editCard({ author, title, pages, read }) {
     this.author = author;
     this.title = title;
     this.pages = pages;
+    console.log(read);
     this.read = read;
     this.updateCard();
     edit = !edit;
     shakeCard(this.card);
 };
 
+//Update card values
 function updateCard() {
     [...this.card.querySelectorAll(".data-para")].forEach((para) => {
-        para.textContent = this[para.id.slice(5)];
+        const id = para.id.slice(5);
+        console.log(id, this[id]);
+        para.textContent = id === "read" && this[id] === "true" ? "read" :
+                           id === "read" && this[id] === "false" ? "unread" :
+                           this[id];
     });
 }
 
@@ -140,7 +148,7 @@ function extractDialogInputs() {
     dialogInputs.forEach(elem => {
         const label = document.querySelector(`label[for=${elem.id}]`);
         const cleanLabel = label.textContent.replace(": ", "").toLowerCase();
-        const value = elem.type === "checkbox" ? elem.checked : elem.value;
+        const value = elem.type === "checkbox" ? elem.checked.toString() : elem.value;
         book[cleanLabel] = value;
     });
     return book;
@@ -151,8 +159,9 @@ openDialog.addEventListener("click", () => bookDialog.showModal());
 bookDialog.addEventListener("close", () => {
     if (bookDialog.returnValue === "close") { emptyForm(); edit = !edit; return; };
     const book = extractDialogInputs();
-    if (edit) currentBook.edit(book);
-    else {
+    if (edit) { 
+        currentBook.editCard(book) 
+    } else {
         const newBook = new Book(book);
         newBook.makeCard();
         myLibrary.push(newBook);    
